@@ -16,13 +16,9 @@
 ## 使用
 右上角 Code > Download ZIP，下載後解壓縮
 
-<<<<<<< Updated upstream
 在程式資料夾中，放入一個 alarm.mp3 音檔於告警時播放，由於版權問題先不附上我用的音檔
 
 
-=======
-在程式資料夾中放入 alarm.mp3 音檔，告警時會播放，只要檔名一樣就好可以換掉檔案
->>>>>>> Stashed changes
 在 .env 中填入競賽用的帳號密碼
 
 
