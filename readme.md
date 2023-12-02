@@ -16,9 +16,13 @@
 ## 使用
 右上角 Code > Download ZIP，下載後解壓縮
 
+<<<<<<< Updated upstream
 在程式資料夾中，放入一個 alarm.mp3 音檔於告警時播放，由於版權問題先不附上我用的音檔
 
 
+=======
+在程式資料夾中放入 alarm.mp3 音檔，告警時會播放，只要檔名一樣就好可以換掉檔案
+>>>>>>> Stashed changes
 在 .env 中填入競賽用的帳號密碼
 
 
@@ -42,3 +46,9 @@ checkscore.py 的參數:
 歡迎 fork 成不用 VLC 也能支援其他作業系統的版本，我沒有 Mac QQ
 
 這個 bot 在競賽後除了登入功能外沒有測試過，很可能會因為 PaGamo 改版而壞掉，出問題的話歡迎開 issue
+
+## Credits
+alarm.mp3 來源：Different Heaven - Nekozilla [NCS Release]
+Music provided by NoCopyrightSounds
+Free Download/Stream: http://ncs.io/nekozilla
+Watch: http://youtu.be/6FNHe3kf8_s
