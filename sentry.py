@@ -8,9 +8,9 @@ import vlc
 
 # 在 .env 中填入競賽用的帳號密碼
 # alert_if_script_down: 程式異常（例如網路斷掉）時，要不要播音樂警告
-# competition_name: 競賽在 PaGamO 上的代號，例如 2023gics_college
+# competition_name: 競賽在 PaGamO 上的代號，例如 2024gics_college
 alert_if_script_down = True
-competition_name = '2023gics_college'
+competition_name = '2024gics_college'
 account = get_key('.env', 'ACCOUNT')
 password = get_key('.env', 'PASSWORD')
 
