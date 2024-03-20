@@ -10,7 +10,8 @@ import vlc
 # alert_if_script_down: 程式異常（例如網路斷掉）時，要不要播音樂警告
 # competition_name: 競賽在 PaGamO 上的代號，例如 2024gics_college
 alert_if_script_down = True
-competition_name = '2024gics_college'
+competition_name = 'gics'
+# competition_name = '2024gics_college'
 account = get_key('.env', 'ACCOUNT')
 password = get_key('.env', 'PASSWORD')
 
@@ -20,6 +21,7 @@ rsa_key = RSA.importKey(b64decode(public_key))
 cipher_text = Cipher_PKCS1_v1_5.new(rsa_key).encrypt(password.encode())
 e_pw = b64encode(cipher_text)
 login_url = 'https://esports.pagamo.org/api/sign_in'
+# TODO: to 參數可能會需要更新，待競賽開始後確認
 login_data = {'to': f'%/contests%/{competition_name}', 'account': account, 'encrypted': True, 'password': e_pw}
 
 s = requests.Session()
@@ -35,7 +37,7 @@ while resp.status_code == 200:
         current_score =  resp.json()["data"]["self_rankings"]["score"]
         if last_seen_score > current_score:
             if not ignore:
-                print(f'warning: last seen: {last_seen_score}, current: {current_score}')
+                print(f'警告 偵測到入侵: last seen: {last_seen_score}, current: {current_score}')
                 alarm = vlc.MediaPlayer("alarm.mp3")
                 alarm.play()
                 last_seen_score = current_score

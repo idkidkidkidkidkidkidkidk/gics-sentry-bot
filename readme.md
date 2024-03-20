@@ -35,23 +35,25 @@ sentry.py 的參數:
 - alert_if_script_down: 程式異常（例如網路斷掉）時，要不要播音樂警告
 - competition_name: 競賽在 PaGamO 上的代號，例如 `2024gics_college`
 
-
 建議檢查電腦在掛機一段時間後會不會休眠，休眠很可能導致哨兵 bot 停止運作
 
 
 ## Known Issues
-1. 比賽中沒有找到直接獲取領地數或偵測有人攻擊的方法，隊伍中有任何一人正在答題時，會沒辦法偵測到攻擊
-2. 偵測分數也不是個好方法，一定要等土地被打掉時才會告警
+1. 機器人讀取的是隊伍分數，沒辦法判斷是哪一人遭受攻擊
+2. 若隊伍中有人正在答題、提高分數，會無法偵測到隊友正在遭受攻擊
+3. 土地被打掉時才會告警，如果能遇到攻擊就告警就好了但是相關資料實在很難拿
 
 
 ## Notes
 歡迎 fork 成不用 VLC 也能支援其他作業系統的版本，我沒有 Mac QQ
 
-這個 bot 在競賽後除了登入功能外沒有測試過，很可能會因為 PaGamO 改版而壞掉，出問題的話歡迎開 issue
+2024/03 更新：已確認登入功能能夠正常運作，但競賽模式的 API 有沒有更新還要等比賽開始後確認。預計在初賽開始後一天內 release，出問題的話歡迎開 issue
 
 ## Credits
 alarm.mp3 來源：Different Heaven - Nekozilla [NCS Release]
+
 Music provided by NoCopyrightSounds
 
 Free Download/Stream: http://ncs.io/nekozilla
+
 Watch: http://youtu.be/6FNHe3kf8_s
