@@ -20,7 +20,7 @@ pip install -r requirements.txt
 # 測試音量
 python testvolume.py
 
-# 在 .env 中填入競賽用的帳號密碼後再執行哨兵bot
+# 在 .env 中填入競賽用的帳號密碼後再執行哨兵 bot
 python sentry.py
 ```
 
@@ -45,6 +45,11 @@ sentry.py 的參數:
 2024/03 更新：已確認登入功能能夠正常運作，但競賽模式的 API 有沒有更新還要等比賽開始後確認。
 
 預計在初賽開始後一天內 release，出問題的話歡迎開 issue
+
+
+## Todo
+- 擴展到非競賽（一般模式）也能用
+
 
 ## Credits
 alarm.mp3 來源：Different Heaven - Nekozilla [NCS Release]
