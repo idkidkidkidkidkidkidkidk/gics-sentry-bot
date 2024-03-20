@@ -4,14 +4,17 @@ from time import sleep
 from Crypto.PublicKey import RSA
 from Crypto.Cipher import PKCS1_v1_5 as Cipher_PKCS1_v1_5
 from base64 import b64decode, b64encode
-import vlc
+import os
+
+# 關掉 pygame 歡迎訊息
+os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
+from pygame import mixer
 
 # 在 .env 中填入競賽用的帳號密碼
 # alert_if_script_down: 程式異常（例如網路斷掉）時，要不要播音樂警告
 # competition_name: 競賽在 PaGamO 上的代號，例如 2024gics_college
 alert_if_script_down = True
-competition_name = 'gics'
-# competition_name = '2024gics_college'
+competition_name = '2024gics_college'
 account = get_key('.env', 'ACCOUNT')
 password = get_key('.env', 'PASSWORD')
 
@@ -37,23 +40,31 @@ while resp.status_code == 200:
         current_score =  resp.json()["data"]["self_rankings"]["score"]
         if last_seen_score > current_score:
             if not ignore:
-                print(f'警告 偵測到入侵: last seen: {last_seen_score}, current: {current_score}')
-                alarm = vlc.MediaPlayer("alarm.mp3")
-                alarm.play()
+                print('警告: 偵測到入侵!')
+                print(f'原本分數: {last_seen_score}, 現在分數: {current_score}')
+                
+                mixer.init()
+                mixer.music.load('./alarm.mp3')
+                mixer.music.play()
+                while mixer.music.get_busy():
+                    sleep(1) # 等待音樂結束撥放
+
                 last_seen_score = current_score
                 ignore = 3 # 三次內分數繼續減少不警告
             else:
                 ignore -= 1
         else:
-            print(f'alive, score: {current_score}')
+            print(f'哨兵監視中, 目前分數: {current_score}')
         
         sleep(180) # 每三分鐘檢查一次
         resp = s.get(ranking_url, params=ranking_params)
     except Exception as e:
-        print('error: {0}'.format(e))
+        print(' {0}'.format(e))
         if alert_if_script_down:
-            alarm = vlc.MediaPlayer('alarm.mp3')
-            alarm.play()
-            sleep(300)
+            mixer.init()
+            mixer.music.load('./alarm.mp3')
+            mixer.music.play()
+            while mixer.music.get_busy():
+                sleep(1)
             break
         break

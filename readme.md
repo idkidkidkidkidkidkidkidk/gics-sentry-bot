@@ -8,7 +8,7 @@
 ## 需求
 請用 [Python 3](https://www.python.org/downloads/) 以上
 
-如果電腦上沒有裝 [VLC](https://www.videolan.org/vlc/index.zh_TW.html) 可以用 novlc 版本，但沒有 VLC 的版本應該只有 Windows 能用
+執行前用 `pip install -r requirements.txt` 安裝需要的套件
 
 
 ## 使用
@@ -17,13 +17,11 @@ git clone https://github.com/idkidkidkidkidkidkidkidk/gics-sentry-bot.git
 cd gics-sentry-bot
 pip install -r requirements.txt
 
-# 在 .env 中填入競賽用的帳號密碼後執行程式
+# 測試音量
+python testvolume.py
 
-# 如果有裝 vlc
+# 在 .env 中填入競賽用的帳號密碼後再執行哨兵bot
 python sentry.py
-
-# 如果沒有 vlc
-python sentry_novlc.py
 ```
 
 可以用其他 mp3 檔案替換掉 alarm.mp3，這個音檔會在告警時播放
@@ -39,15 +37,14 @@ sentry.py 的參數:
 
 
 ## Known Issues
-1. 機器人讀取的是隊伍分數，沒辦法判斷是哪一人遭受攻擊
-2. 若隊伍中有人正在答題、提高分數，會無法偵測到隊友正在遭受攻擊
-3. 土地被打掉時才會告警，如果能遇到攻擊就告警就好了但是相關資料實在很難拿
+1. 機器人讀取的是隊伍分數，若隊伍中有人正在答題、提高分數，會無法偵測到隊友被攻擊
+2. 土地被打掉時才會告警，如果能遇到攻擊就告警就好了但是相關資料實在很難拿
 
 
 ## Notes
-歡迎 fork 成不用 VLC 也能支援其他作業系統的版本，我沒有 Mac QQ
+2024/03 更新：已確認登入功能能夠正常運作，但競賽模式的 API 有沒有更新還要等比賽開始後確認。
 
-2024/03 更新：已確認登入功能能夠正常運作，但競賽模式的 API 有沒有更新還要等比賽開始後確認。預計在初賽開始後一天內 release，出問題的話歡迎開 issue
+預計在初賽開始後一天內 release，出問題的話歡迎開 issue
 
 ## Credits
 alarm.mp3 來源：Different Heaven - Nekozilla [NCS Release]

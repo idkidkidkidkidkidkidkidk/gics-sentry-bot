@@ -1,4 +1,3 @@
 requests
-python-vlc
 pycryptodome
 pygame
