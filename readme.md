@@ -28,12 +28,12 @@ python sentry.py
 
 建議先用 testvolume.py 測試音量，調一個會把你吵醒但不會吵到鄰居的音量，測試後再執行 sentry.py
 
+建議檢查電腦在掛機一段時間後會不會休眠，休眠很可能導致哨兵 bot 停止運作
 
 sentry.py 的參數:
 - alert_if_script_down: 程式異常（例如網路斷掉）時，要不要播音樂警告
 - competition_name: 競賽在 PaGamO 上的代號，例如 `2024gics_college`
-
-建議檢查電腦在掛機一段時間後會不會休眠，休眠很可能導致哨兵 bot 停止運作
+    - 這個資訊可以在競賽世界的網址中找到
 
 
 ## Known Issues
