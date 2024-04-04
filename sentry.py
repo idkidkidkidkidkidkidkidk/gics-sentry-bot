@@ -4,6 +4,7 @@ from pygame import mixer
 import requests
 from dotenv import get_key
 from time import sleep
+import datetime
 from Crypto.PublicKey import RSA
 from Crypto.Cipher import PKCS1_v1_5 as Cipher_PKCS1_v1_5
 from base64 import b64decode, b64encode
@@ -71,15 +72,20 @@ for offset in range(-search_range, search_range + 1): # [-3, 4)
 
 
 if len(teammate_gcids) == 3:
-    print('搜尋成功, 隊友 id: {0}'.format(' '.join(str(gcid) for gcid in teammate_gcids)))
+    print('搜尋成功')
+    print('隊友 id: {0}'.format(' '.join(str(gcid) for gcid in teammate_gcids)))
+    print('隊友暱稱: {0}'.format(' '.join(str(nick) for nick in teammate_nicknames)))
 else:
     print('搜尋失敗, 請擴大搜尋範圍')
     exit(1)
     
 
-print()
-print('開始監視')
+cooldown = 1 # 每三分鐘檢查一次, 請善待 PaGamO 伺服器, 不要把他調太低
 last_seen_land = [0, 0, 0]
+print()
+print(f'開始監視 (每 {cooldown} 分鐘檢查一次)')
+
+
 while True:
     try:
         # 抓隊友各自的領土數
@@ -89,7 +95,10 @@ while True:
             info_resp = s.post(info_url, data={'gc_id': gcid})
             land_count = info_resp.json()['data']['gamecharacter']['hexagons_count']
             current_land.append(land_count)
-            
+        
+        # 記錄現在時間
+        print(datetime.datetime.now().strftime('%m/%d %H:%M'), end=' ')
+
         if any(current < last for last, current in zip(last_seen_land, current_land)):
             print('警告: 偵測到入侵!')
             print('遭到攻擊的帳號:')
@@ -106,9 +115,10 @@ while True:
         else:
             print('哨兵監視中, 目前土地數: {}'.format(' '.join(str(i) for i in current_land)))
             last_seen_land = current_land.copy()
-        sleep(180) # 每三分鐘檢查一次
+        sleep(cooldown * 60) # 請善待 PaGamO 伺服器, 不要把他調太低
     except Exception as e:
-        print(f'發生錯誤:{e}')
+        print(datetime.datetime.now().strftime('%m/%d %H:%M'), end=' ')
+        print(f'發生錯誤: {e}')
         if alert_if_script_down:
             mixer.init()
             mixer.music.load('./alarm.mp3')
