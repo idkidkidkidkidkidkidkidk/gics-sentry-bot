@@ -4,7 +4,7 @@ from pygame import mixer
 import requests
 from dotenv import get_key
 from time import sleep
-import datetime
+from datetime import datetime
 from Crypto.PublicKey import RSA
 from Crypto.Cipher import PKCS1_v1_5 as Cipher_PKCS1_v1_5
 from base64 import b64decode, b64encode
@@ -80,7 +80,7 @@ else:
     exit(1)
     
 
-cooldown = 1 # 每三分鐘檢查一次, 請善待 PaGamO 伺服器, 不要把他調太低
+cooldown = 3 # 每三分鐘檢查一次, 請善待 PaGamO 伺服器, 不要把他調太低
 last_seen_land = [0, 0, 0]
 print()
 print(f'開始監視 (每 {cooldown} 分鐘檢查一次)')
@@ -97,7 +97,7 @@ while True:
             current_land.append(land_count)
         
         # 記錄現在時間
-        print(datetime.datetime.now().strftime('%m/%d %H:%M'), end=' ')
+        print(datetime.now().strftime('%m/%d %H:%M'), end=' ')
 
         if any(current < last for last, current in zip(last_seen_land, current_land)):
             print('警告: 偵測到入侵!')
@@ -117,7 +117,7 @@ while True:
             last_seen_land = current_land.copy()
         sleep(cooldown * 60) # 請善待 PaGamO 伺服器, 不要把他調太低
     except Exception as e:
-        print(datetime.datetime.now().strftime('%m/%d %H:%M'), end=' ')
+        print(datetime.now().strftime('%m/%d %H:%M'), end=' ')
         print(f'發生錯誤: {e}')
         if alert_if_script_down:
             mixer.init()
