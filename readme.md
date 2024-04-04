@@ -1,9 +1,10 @@
 # GiCS 初賽哨兵 bot
 
-這是一個被 2023 GiCS 長達五天的初賽催生出的小工具
+這是一個被資安女婕思長達五天的初賽催生出的小工具
 
-每三分鐘檢查隊伍分數，分數掉的時候通知，讓你的隊伍可以安心睡覺 :sparkles:
+每三分鐘檢查隊伍每個人的土地數量，地數掉的時候播音樂通知，讓你的隊友可以安心睡覺 :sparkles:
 
+![哨兵 bot 執行畫面](./screenshot.png)
 
 ## 需求
 請用 [Python 3](https://www.python.org/downloads/) 以上
@@ -12,6 +13,7 @@
 
 
 ## 使用
+
 ```
 git clone https://github.com/idkidkidkidkidkidkidkidk/gics-sentry-bot.git
 cd gics-sentry-bot
@@ -31,27 +33,28 @@ python sentry.py
 建議檢查電腦在掛機一段時間後會不會休眠，休眠很可能導致哨兵 bot 停止運作
 
 sentry.py 的參數:
-- alert_if_script_down: 程式異常（例如網路斷掉）時，要不要播音樂警告
-- competition_name: 競賽在 PaGamO 上的代號，例如 `2024gics_college`
-    - 這個資訊可以在競賽世界的網址中找到
+- alert_if_script_down: 程式異常（例如網路斷線）時，要不要播音樂警告
 
 
 ## Known Issues
-1. 機器人讀取的是隊伍分數，若隊伍中有人正在答題、提高分數，會無法偵測到隊友被攻擊
-2. 土地被打掉時才會告警，如果能遇到攻擊就告警就好了但是相關資料實在很難拿
+
+1. 土地被打掉時才會告警，被攻擊但土地還沒被打掉時不會發出警報
+2. 警報音樂播放時不會同時偵測攻擊
 
 
 ## Notes
-2024/03 更新：已確認登入功能能夠正常運作，但競賽模式的 API 有沒有更新還要等比賽開始後確認。
 
 預計在初賽開始後一天內 release，出問題的話歡迎開 issue
 
 
 ## Todo
-- 擴展到非競賽（一般模式）也能用
+
+- 警報音樂改成只播一分鐘，避免影響偵測
+- 替換警報時的動作，無縫接軌 Discord bot 等等
 
 
 ## Credits
+
 alarm.mp3 來源：Different Heaven - Nekozilla [NCS Release]
 
 Music provided by NoCopyrightSounds
