@@ -18,6 +18,9 @@ competition_name = '2024gics_college'
 account = get_key('.env', 'ACCOUNT')
 password = get_key('.env', 'PASSWORD')
 
+if account == '你的帳號' or password == '你的密碼':
+    print('帳密未填寫, 請在 .env 中填入競賽使用的帳號密碼')
+
 s = requests.Session()
 
 # 登入
@@ -30,13 +33,18 @@ login_data = {'account': account, 'encrypted': True, 'password': e_pw}
 
 print('正在登入...')
 login_resp = s.post(login_url, data=login_data).json()
-if login_resp['status'] == 'ok':
-    print('登入成功')
-    print()
-else:
+if not login_resp['status'] == 'ok':
     print('登入失敗, 請檢查 .env 中的帳號密碼是否填寫正確！')
     sleep(7) # 錯誤訊息停留幾秒再結束程式
     exit(1)
+# 看起來很蠢, 但分辨測試跟正式比賽世界最好的方式是看名稱有沒有組這個字
+elif not login_resp['data']['user']['current_course_info']['name'].endswith('組'):
+    print('請使用比賽帳號登入')
+    sleep(7) # 錯誤訊息停留幾秒再結束程式
+    exit(1)
+else:
+    print('登入成功')
+    print()
 
 # 登入時會拿到上次進入的課程對應的 game character 資料
 # 提取 gc_id 拿 personal_information 中的組別名稱
@@ -83,7 +91,7 @@ else:
 cooldown = 3 # 每三分鐘檢查一次, 請善待 PaGamO 伺服器, 不要把他調太低
 last_seen_land = [0, 0, 0]
 print()
-print(f'開始監視 (每 {cooldown} 分鐘檢查一次)')
+print(f'開始監視 (每 {cooldown} 分鐘檢查一次, 按 ctrl + c 可停止)')
 
 
 while True:
