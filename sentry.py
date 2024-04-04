@@ -111,7 +111,7 @@ while True:
             for i in range(len(last_seen_land)):
                 if current_land[i] < last_seen_land[i]:
                     print('{}, 原本土地數: {}, 現在土地數: {}'
-                          .format(teammate_nicknames[i], current_land[i], last_seen_land[i]))
+                          .format(teammate_nicknames[i], last_seen_land[i], current_land[i]))
             # 播音樂
             mixer.init()
             mixer.music.load('./alarm.mp3')
@@ -120,8 +120,9 @@ while True:
                 sleep(1) # 等待音樂結束撥放
         else:
             print('哨兵監視中, 目前土地數: {}'.format(' '.join(str(i) for i in current_land)))
-            last_seen_land = current_land.copy()
-        sleep(cooldown * 60) # 請善待 PaGamO 伺服器, 不要把他調太低
+            sleep(cooldown * 60) # 請善待 PaGamO 伺服器, 不要把他調太低
+        last_seen_land = current_land.copy()
+        
     except Exception as e:
         print(datetime.now().strftime('%m/%d %H:%M'), end=' ')
         print(f'發生錯誤: {e}')
