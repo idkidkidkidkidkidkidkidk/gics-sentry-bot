@@ -8,9 +8,10 @@ from Crypto.Cipher import PKCS1_v1_5 as Cipher_PKCS1_v1_5
 from Crypto.PublicKey import RSA
 from dotenv import get_key
 
+from alarm import play_music
+
 # 關掉 pygame 歡迎訊息
 os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
-from pygame import mixer
 
 info_url = 'https://www.pagamo.org/users/personal_information.json'
 s = requests.Session()
@@ -110,15 +111,6 @@ def get_teammate(user: dict):
         exit(1)
 
     return {'gcid': teammate_gcids, 'nickname': teammate_nicknames}
-
-
-def play_music():
-    # 播音樂
-    mixer.init()
-    mixer.music.load('./alarm.mp3')
-    mixer.music.play()
-    while mixer.music.get_busy():
-        sleep(1)  # 等待音樂結束撥放
 
 
 def sentry(teammates: dict):
