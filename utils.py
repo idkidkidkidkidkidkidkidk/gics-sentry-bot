@@ -6,6 +6,7 @@ import requests
 from Crypto.Cipher import PKCS1_v1_5 as Cipher_PKCS1_v1_5
 from Crypto.PublicKey import RSA
 from dotenv import get_key
+import pickle
 
 # 關掉 pygame 歡迎訊息
 os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
@@ -108,3 +109,45 @@ def get_teammate(user: dict):
         exit(1)
 
     return {'gcid': teammate_gcids, 'nickname': teammate_nicknames}
+
+def get_alldata():
+    # gics_winner = {str(i): {} for i in range(1, 313)}
+    gics_winner = {}
+    # 修改方向: 第一次先抓所有人(935) 然後找到
+    # 1. 比自己組別題數少+土地多的 (打爛他)
+    # 2. 比自己組別題數多+土地多的 (待觀察)
+    # 3. 比自己組別題數少+土地少的 (安全)
+    
+    first_user_id=7641033
+    #以組別遞迴(1-312)
+    for i in range(0,312):
+        group_id=i+1
+        # group_id = str(group_id)
+        gics_winner[group_id] = {'problem_solving': [], 'land_count': [], 'ranking_count': [], 'total_problem':0,'total_land':0,'avg_rank':0}
+        # 以組員(1-3)
+        for j in range(1,4):
+            sleep(2)
+            uid=first_user_id+i*3+j
+            info_resp = s.post(info_url, data={'gc_id': str(uid)})
+            info_json =  info_resp.json()
+            # print(info_json)
+            # 把答題/土地/排名放入
+            problem = info_json['data']['gamecharacter']['problem_solving']
+            land = info_json['data']['gamecharacter']['hexagons_count']
+            rank = info_json['data']['gamecharacter']['normal_rank_scoring']
+
+            gics_winner[group_id]['problem_solving'].append(problem)
+            gics_winner[group_id]['total_problem'] += problem
+
+            gics_winner[group_id]['land_count'].append(land)
+            gics_winner[group_id]['total_land'] += land
+
+            gics_winner[group_id]['ranking_count'].append(rank)
+            gics_winner[group_id]['avg_rank'] += rank
+        # 計算平均排名ovo
+        gics_winner[group_id]['avg_rank'] /=3
+    print(gics_winner)
+    # 存檔
+    with open('gics_winner.pickle', 'wb') as f:
+        pickle.dump(gics_winner, f)
+    return
