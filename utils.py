@@ -110,6 +110,7 @@ def get_teammate(user: dict):
 
     return {'gcid': teammate_gcids, 'nickname': teammate_nicknames}
 
+
 def get_alldata():
     # gics_winner = {str(i): {} for i in range(1, 313)}
     gics_winner = {}
@@ -157,6 +158,7 @@ def get_alldata():
         pickle.dump(gics_winner, f)
     return
 
+
 def analyze_result():
     with open('gics_winner.pickle', 'rb') as f:
         loaded_data = pickle.load(f)
@@ -166,10 +168,59 @@ def analyze_result():
     # 檢查有些隊伍沒有掃到第三個人的
     mypeople = len(loaded_data[mygroup]['land_count'])
     myland = loaded_data[mygroup]['total_land']
-    mysloved = loaded_data[mygroup]['total_problem']
+    mysolved = loaded_data[mygroup]['total_problem']
     myland = loaded_data[mygroup]['total_land']
 
-    # 找到解題比我們少而且土地比我們多的隊伍(優先打爛)
-    for index, values in loaded_data:
-        if 'total_problem' in values and values['total_problem'] < mysloved:
-            print(f"Index: {index}, Values: {values}")
+
+def generate_result():
+
+    # TOP 50
+    url = 'https://www.pagamo.org/api/rankings/ranking_data'
+    params = {'name': 'contest_by_team', 'type': 'scoring'}
+    response = s.get(url, params=params).json()
+    print(response['topten'][0]['nickname'][6:-1])
+
+    with open('gics_winner.pickle', 'rb') as f:
+        loaded_data = pickle.load(f)
+
+
+    mygroup = int(input("請輸入組別 : "))
+    print(loaded_data[mygroup])
+
+    # 拿到自己組的資料
+    # mypeople = len(loaded_data[mygroup]['land_count'])
+    myland = loaded_data[mygroup]['total_land']
+    mysolved = loaded_data[mygroup]['total_problem']
+    myscore = response['near'][0]['number']
+
+    mywrong = mysolved-int((myscore-3*myland)/7)
+    
+    # 先拿到自己的current score
+    my_ideal_high = myscore + (600-mysolved)*8.5
+    print('我們的: 第'+str(mygroup)+'組 || 理論分數:'+str(my_ideal_high)+'，目前答對:'+str(mysolved)+'，目前錯題:'+str(mywrong)+'，目前分數:'+str(myscore)+'，目前土地:'+str(myland))
+
+    for  i in range(0, 49):
+        # 組別代號
+        group_id = int(response['topten'][i]['nickname'][6:-1])
+        # 目前分數
+        current_score = response['topten'][i]['number']
+        # 目前土地
+        current_land = loaded_data[group_id]['total_land']
+        # 已答題數
+        current_solved = loaded_data[group_id]['total_problem']
+
+        # (目前分數-土地數量*3)/7=答對題數  
+
+        #               <目前解題>     <(目前分數-土地分)/7>
+        wrong_count = current_solved-int((current_score-3*current_land)/7)
+
+        # 假設剩下都對 -> 剩餘題目*7+(剩餘題目/2)*3 = 剩餘題目*8.5
+        #               <答對分數>  <土地分>         <加總>
+        ideal_high = current_score + (600-current_solved)*8.5
+
+        if(ideal_high>my_ideal_high and len(loaded_data[mygroup]['land_count'])==3):
+            print('第'+str(group_id)+'組 || 理論分數:'+str(ideal_high)+'，目前答對:'+str(current_solved)+'，目前錯題:'+str(wrong_count)+'，目前分數:'+str(current_score)+'，目前土地:'+str(current_land))
+
+
+    return
+
