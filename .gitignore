@@ -4,3 +4,5 @@ venv
 .idea
 .DS_Store
 __pycache__/
+
+gics_winner.pickle
