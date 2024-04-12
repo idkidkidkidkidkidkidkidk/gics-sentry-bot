@@ -121,8 +121,8 @@ def get_alldata():
     first_user_id=7641033
 
     #以個人<1,937>進行遞迴尋找
-    for i in range(741,748):
-        sleep(2)
+    for i in range(1,945):
+        sleep(1)
         uid=first_user_id+i
         # 呼叫API
         info_resp = s.post(info_url, data={'gc_id': str(uid)})
