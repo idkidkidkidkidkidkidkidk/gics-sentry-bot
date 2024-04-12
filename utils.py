@@ -120,18 +120,21 @@ def get_alldata():
     
     first_user_id=7641033
 
-    #以個人<1,937>進行遞迴尋找
+    #以個人<1,945>進行遞迴尋找
     for i in range(1,945):
         sleep(1)
         uid=first_user_id+i
         # 呼叫API
         info_resp = s.post(info_url, data={'gc_id': str(uid)})
         info_json =  info_resp.json()
-        print(info_json)
+        # print(info_json)
 
         # 確認不要混到其他奇怪的東西進來
         if(info_json['data']['user']['nickname'] and len(info_json['data']['user']['nickname'])==14):
-            group_id = info_json['data']['gamecharacter']['group_name']
+            
+            group_id = int(info_json['data']['gamecharacter']['group_name'][6:-1])
+            print(group_id)
+
             if group_id not in gics_winner:
                 gics_winner[group_id] = {'problem_solving': [], 'land_count': [], 'ranking_count': [], 'total_problem':0,'total_land':0,'avg_rank':0}
             # 檢查484GICS的帳號
@@ -153,3 +156,20 @@ def get_alldata():
     with open('gics_winner.pickle', 'wb') as f:
         pickle.dump(gics_winner, f)
     return
+
+def analyze_result():
+    with open('gics_winner.pickle', 'rb') as f:
+        loaded_data = pickle.load(f)
+    mygroup = input("請輸入組別 : ")
+    # print(loaded_data[mygroup])
+
+    # 檢查有些隊伍沒有掃到第三個人的
+    mypeople = len(loaded_data[mygroup]['land_count'])
+    myland = loaded_data[mygroup]['total_land']
+    mysloved = loaded_data[mygroup]['total_problem']
+    myland = loaded_data[mygroup]['total_land']
+
+    # 找到解題比我們少而且土地比我們多的隊伍(優先打爛)
+    for index, values in loaded_data:
+        if 'total_problem' in values and values['total_problem'] < mysloved:
+            print(f"Index: {index}, Values: {values}")

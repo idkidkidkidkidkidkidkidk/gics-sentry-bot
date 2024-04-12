@@ -59,6 +59,9 @@ def sentry(teammates: dict):
 if __name__ == '__main__':
     user = get_account()
     login(user)
-    get_alldata()
+
+    # optional for collecting data(約5分鐘)
+    # get_alldata()
+    # analyze_result()
     # teammates = get_teammate(user)
     # sentry(teammates)
