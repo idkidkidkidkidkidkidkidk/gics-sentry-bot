@@ -6,7 +6,6 @@ import requests
 from Crypto.Cipher import PKCS1_v1_5 as Cipher_PKCS1_v1_5
 from Crypto.PublicKey import RSA
 from dotenv import get_key
-import pickle
 
 # 關掉 pygame 歡迎訊息
 os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
@@ -117,11 +116,15 @@ def get_specific_group(team_id: int, offset: int):
     return gcids, nicknames
 
 
-def get_team_member(user: dict, team_id: int = None):
+def calculate_first_player_id(user: dict):
     self_gcid = user['self_gcid']
     self_nickname = user['self_nickname']
 
-    offset = self_gcid - int(self_nickname[-4:])
+    return self_gcid - int(self_nickname[-4:])
+
+
+def get_team_member(user: dict, team_id: int = None):
+    first_user_id = calculate_first_player_id(user)
 
     if team_id is None:
         self_group = user['self_group']
@@ -130,122 +133,9 @@ def get_team_member(user: dict, team_id: int = None):
     # 找出隊友
     print('正在搜尋成員的 id (請耐心等候數秒)...')
 
-    teammate_gcids, teammate_nicknames = get_specific_group(team_id, offset)
+    teammate_gcids, teammate_nicknames = get_specific_group(team_id, first_user_id)
     print_user(teammate_gcids, teammate_nicknames)
 
     return {'gcid': teammate_gcids, 'nickname': teammate_nicknames}
 
-
-def get_alldata():
-    # gics_winner = {str(i): {} for i in range(1, 313)}
-    gics_winner = {}
-    # 修改方向: 第一次先抓所有人(935) 然後找到
-    # 1. 比自己組別題數少+土地多的 (打爛他)
-    # 2. 比自己組別題數多+土地多的 (待觀察)
-    # 3. 比自己組別題數少+土地少的 (安全)
-    
-    first_user_id=7641033
-
-    #以個人<1,945>進行遞迴尋找
-    for i in range(1,945):
-        sleep(1)
-        uid=first_user_id+i
-        # 呼叫API
-        info_resp = s.post(info_url, data={'gc_id': str(uid)})
-        info_json =  info_resp.json()
-        # print(info_json)
-
-        # 確認不要混到其他奇怪的東西進來
-        if(info_json['data']['user']['nickname'] and len(info_json['data']['user']['nickname'])==14):
-            
-            group_id = int(info_json['data']['gamecharacter']['group_name'][6:-1])
-            print(group_id)
-
-            if group_id not in gics_winner:
-                gics_winner[group_id] = {'problem_solving': [], 'land_count': [], 'ranking_count': [], 'total_problem':0,'total_land':0,'avg_rank':0}
-            # 檢查484GICS的帳號
-            # 把答題/土地/排名放入
-            problem = info_json['data']['gamecharacter']['problem_solving']
-            land = info_json['data']['gamecharacter']['hexagons_count']
-            rank = info_json['data']['gamecharacter']['normal_rank_scoring']
-
-            gics_winner[group_id]['problem_solving'].append(problem)
-            gics_winner[group_id]['total_problem'] += problem
-
-            gics_winner[group_id]['land_count'].append(land)
-            gics_winner[group_id]['total_land'] += land
-
-            gics_winner[group_id]['ranking_count'].append(rank)
-            gics_winner[group_id]['avg_rank'] += rank
-    print(gics_winner)
-    # 存檔
-    with open('gics_winner.pickle', 'wb') as f:
-        pickle.dump(gics_winner, f)
-    return
-
-
-def analyze_result():
-    with open('gics_winner.pickle', 'rb') as f:
-        loaded_data = pickle.load(f)
-    mygroup = input("請輸入組別 : ")
-    # print(loaded_data[mygroup])
-
-    # 檢查有些隊伍沒有掃到第三個人的
-    mypeople = len(loaded_data[mygroup]['land_count'])
-    myland = loaded_data[mygroup]['total_land']
-    mysolved = loaded_data[mygroup]['total_problem']
-    myland = loaded_data[mygroup]['total_land']
-
-
-def generate_result():
-
-    # TOP 50
-    url = 'https://www.pagamo.org/api/rankings/ranking_data'
-    params = {'name': 'contest_by_team', 'type': 'scoring'}
-    response = s.get(url, params=params).json()
-    print(response['topten'][0]['nickname'][6:-1])
-
-    with open('gics_winner.pickle', 'rb') as f:
-        loaded_data = pickle.load(f)
-
-
-    mygroup = int(input("請輸入組別 : "))
-    print(loaded_data[mygroup])
-
-    # 拿到自己組的資料
-    # mypeople = len(loaded_data[mygroup]['land_count'])
-    myland = loaded_data[mygroup]['total_land']
-    mysolved = loaded_data[mygroup]['total_problem']
-    myscore = response['near'][0]['number']
-
-    mywrong = mysolved-int((myscore-3*myland)/7)
-    
-    # 先拿到自己的current score
-    my_ideal_high = myscore + (600-mysolved)*8.5
-    print('我們的: 第'+str(mygroup)+'組 || 理論分數:'+str(my_ideal_high)+'，目前答對:'+str(mysolved)+'，目前錯題:'+str(mywrong)+'，目前分數:'+str(myscore)+'，目前土地:'+str(myland))
-
-    for  i in range(0, 49):
-        # 組別代號
-        group_id = int(response['topten'][i]['nickname'][6:-1])
-        # 目前分數
-        current_score = response['topten'][i]['number']
-        # 目前土地
-        current_land = loaded_data[group_id]['total_land']
-        # 已答題數
-        current_solved = loaded_data[group_id]['total_problem']
-
-        # (目前分數-土地數量*3)/7=答對題數  
-
-        #               <目前解題>     <(目前分數-土地分)/7>
-        wrong_count = current_solved-int((current_score-3*current_land)/7)
-
-        # 假設剩下都對 -> 剩餘題目*7+(剩餘題目/2)*3 = 剩餘題目*8.5
-        #               <答對分數>  <土地分>         <加總>
-        ideal_high = current_score + (600-current_solved)*8.5
-
-        if(ideal_high>my_ideal_high and len(loaded_data[mygroup]['land_count'])==3):
-            print('第'+str(group_id)+'組 || 理論分數:'+str(ideal_high)+'，目前答對:'+str(current_solved)+'，目前錯題:'+str(wrong_count)+'，目前分數:'+str(current_score)+'，目前土地:'+str(current_land))
-
-
-    return
 
