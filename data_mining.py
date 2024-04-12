@@ -14,8 +14,10 @@ def get_all_data(player: dict):
     gics_winner = {}
     first_user_id = calculate_first_player_id(player)
 
-    # 以個人<1,945>進行遞迴尋找
-    for i in range(1, 945):
+    start = -2
+    end = 945
+
+    for i in range(start, end):  # 範圍改成當前比賽人數
         sleep(1)
 
         info_resp = s.post(info_url, data={'gc_id': str(first_user_id + i)})  # 呼叫API
@@ -25,7 +27,7 @@ def get_all_data(player: dict):
 
             # 確認不要混到其他奇怪的東西進來
             if not info_json['data']['user']['nickname'] or len(info_json['data']['user']['nickname']) != 14:
-                pass
+                continue
 
             group_id = int(info_json['data']['gamecharacter']['group_name'][6:-1])
 
@@ -52,6 +54,7 @@ def get_all_data(player: dict):
                 'group_score': total_correct * 7 + total_land * 3}
 
         gics_winner[group_id].update(data)
+    print(gics_winner)
 
     # 存檔
     with open('gics_winner.pickle', 'wb') as f:
