@@ -119,18 +119,22 @@ def get_alldata():
     # 3. 比自己組別題數少+土地少的 (安全)
     
     first_user_id=7641033
-    #以組別遞迴(1-312)
-    for i in range(0,312):
-        group_id=i+1
-        # group_id = str(group_id)
-        gics_winner[group_id] = {'problem_solving': [], 'land_count': [], 'ranking_count': [], 'total_problem':0,'total_land':0,'avg_rank':0}
-        # 以組員(1-3)
-        for j in range(1,4):
-            sleep(2)
-            uid=first_user_id+i*3+j
-            info_resp = s.post(info_url, data={'gc_id': str(uid)})
-            info_json =  info_resp.json()
-            # print(info_json)
+
+    #以個人<1,937>進行遞迴尋找
+    for i in range(741,748):
+        sleep(2)
+        uid=first_user_id+i
+        # 呼叫API
+        info_resp = s.post(info_url, data={'gc_id': str(uid)})
+        info_json =  info_resp.json()
+        print(info_json)
+
+        # 確認不要混到其他奇怪的東西進來
+        if(info_json['data']['user']['nickname'] and len(info_json['data']['user']['nickname'])==14):
+            group_id = info_json['data']['gamecharacter']['group_name']
+            if group_id not in gics_winner:
+                gics_winner[group_id] = {'problem_solving': [], 'land_count': [], 'ranking_count': [], 'total_problem':0,'total_land':0,'avg_rank':0}
+            # 檢查484GICS的帳號
             # 把答題/土地/排名放入
             problem = info_json['data']['gamecharacter']['problem_solving']
             land = info_json['data']['gamecharacter']['hexagons_count']
@@ -144,8 +148,6 @@ def get_alldata():
 
             gics_winner[group_id]['ranking_count'].append(rank)
             gics_winner[group_id]['avg_rank'] += rank
-        # 計算平均排名ovo
-        gics_winner[group_id]['avg_rank'] /=3
     print(gics_winner)
     # 存檔
     with open('gics_winner.pickle', 'wb') as f:
