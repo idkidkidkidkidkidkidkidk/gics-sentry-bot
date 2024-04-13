@@ -38,5 +38,4 @@ def top_50_brief():
 if __name__ == '__main__':
     user = get_account()
     login(user)
-    # print(top_50_full(user))
     get_all_data(user)
