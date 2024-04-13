@@ -34,12 +34,14 @@ def top_50_brief():
     return top_50
 
 
-def scoreboard():
+def scoreboard(limit: int = None):
     with open('gics_winner.pickle', 'rb') as f:
         loaded_data = pickle.load(f)
 
     # 按小組總分排名
     sorted_ranking = sorted(loaded_data.items(), key=lambda x: x[1]['group_score'], reverse=True)
+    if limit:
+        sorted_ranking = sorted_ranking[:limit]
 
     # 輸出排名結果
     print("目前分數排行")
