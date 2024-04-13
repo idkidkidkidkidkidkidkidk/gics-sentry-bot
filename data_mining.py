@@ -15,10 +15,11 @@ def get_all_data(player: dict):
     first_user_id = calculate_first_player_id(player)
 
     start = -2
-    end = 945
+    end = 45
 
+    print("開始爬取資料：")
     for i in range(start, end):  # 範圍改成當前比賽人數
-        progress_bar(i - start, end - start)
+        progress_bar(i - start, end - 1 - start)
         sleep(1)
 
         info_resp = s.post(info_url, data={'gc_id': str(first_user_id + i)})  # 呼叫API
@@ -55,7 +56,9 @@ def get_all_data(player: dict):
                 'group_score': total_correct * 7 + total_land * 3}
 
         gics_winner[group_id].update(data)
-    print(gics_winner)
+
+    print('\n')
+    print(f"result: {gics_winner}")
 
     # 存檔
     with open('gics_winner.pickle', 'wb') as f:
