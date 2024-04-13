@@ -88,13 +88,13 @@ def print_user(gcids: list[int], nicknames: list[str]):
         exit(1)
 
 
-def get_specific_group(team_id: int, offset: int):
+def search_group(team_id: int, offset: int):
     search_range = 3
     gcids = list()
     nicknames = list()  # 順便拿隊友們的暱稱
 
     for teammate_id in range((team_id - 1) * 3 - search_range, team_id * 3 + search_range):  # [3n - 3, 3(n+1) + 4)
-        sleep(2)  # 減緩請求頻率
+        sleep(0.7)  # 減緩請求頻率
 
         check_gcid = teammate_id + 1 + offset
         info_resp = s.post(info_url, data={'gc_id': check_gcid})
@@ -133,7 +133,7 @@ def get_team_member(user: dict, team_id: int = None):
     # 找出隊友
     print('正在搜尋成員的 id (請耐心等候數秒)...')
 
-    teammate_gcids, teammate_nicknames = get_specific_group(team_id, first_user_id)
+    teammate_gcids, teammate_nicknames = search_group(team_id, first_user_id)
     print_user(teammate_gcids, teammate_nicknames)
 
     return {'gcid': teammate_gcids, 'nickname': teammate_nicknames}
@@ -148,3 +148,44 @@ def progress_bar(now, total, total_blocks=50, decimal_point=2, last_percent=1):
         minus_block = " " * (total_blocks - (now * total_blocks // total))
         percentage = round(now * 100 / total, decimal_point)
         print(f'\r[{plus_block}{minus_block}] {percentage}%', end='')  # 輸出不換行的內容
+
+
+def resolve_group_information(groups: dict, res: requests.models.Response):
+    info_json = res.json()
+
+    # 確認不要混到其他奇怪的東西進來
+    if not info_json['data']['user']['nickname'] or len(info_json['data']['user']['nickname']) != 14:
+        return
+
+    group_id = int(info_json['data']['gamecharacter']['group_name'][6:-1])
+
+    if group_id not in groups:
+        groups[group_id] = {'problem_solving': [], 'land_count': [],
+                            'total_correct': 0, 'total_land': 0, 'group_score': 0}
+
+    # 把答題/土地放入
+    problem = info_json['data']['gamecharacter']['problem_solving']
+    land = info_json['data']['gamecharacter']['hexagons_count']
+
+    groups[group_id]['problem_solving'].append(problem)
+    groups[group_id]['land_count'].append(land)
+    groups[group_id]['total_correct'] += problem
+    groups[group_id]['total_land'] += land
+    groups[group_id]['group_score'] += 7 * problem + 3 * land
+
+
+def get_group_information(groups: dict, gcid_start: int, gcid_end: int, progress: bool = True):
+    for i in range(gcid_start, gcid_end + 1):  # 範圍改成當前比賽人數
+        if progress:
+            progress_bar(i - gcid_start, gcid_end - 1 - gcid_start)
+
+        sleep(0.5)
+
+        info_resp = s.post(info_url, data={'gc_id': str(i)})  # 呼叫API
+
+        try:
+            resolve_group_information(groups, info_resp)
+
+        except Exception as e:
+            print(f'發生錯誤: {e}')
+            exit(1)
