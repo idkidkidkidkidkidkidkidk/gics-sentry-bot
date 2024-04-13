@@ -13,14 +13,13 @@ def get_all_data(player: dict):
 
     first_user_id = calculate_first_player_id(player)
     start = -2 + first_user_id
-    end = 44 + first_user_id
+    end = 944 + first_user_id
 
     print("開始爬取資料：")
     groups = {}
     get_group_information(groups, start, end)
 
     print('\n')
-    print(f"result: {groups}")
 
     # 存檔
     with open('gics_winner.pickle', 'wb') as f:
@@ -35,7 +34,21 @@ def top_50_brief():
     return top_50
 
 
+def scoreboard():
+    with open('gics_winner.pickle', 'rb') as f:
+        loaded_data = pickle.load(f)
+
+    # 按小組總分排名
+    sorted_ranking = sorted(loaded_data.items(), key=lambda x: x[1]['group_score'], reverse=True)
+
+    # 輸出排名結果
+    print("目前分數排行")
+    for rank, (index, info) in enumerate(sorted_ranking, start=1):
+        print("第{:03d}隊: {:04d}分 - 第{}名".format(index, info['group_score'], rank))
+
+
 if __name__ == '__main__':
     user = get_account()
     login(user)
     get_all_data(user)
+    scoreboard()
