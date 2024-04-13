@@ -18,6 +18,7 @@ def get_all_data(player: dict):
     end = 945
 
     for i in range(start, end):  # 範圍改成當前比賽人數
+        progress_bar(i - start, end - start)
         sleep(1)
 
         info_resp = s.post(info_url, data={'gc_id': str(first_user_id + i)})  # 呼叫API
