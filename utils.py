@@ -28,7 +28,7 @@ def get_account():
     return {'account': account, 'password': encrypt_password(password)}
 
 
-def login_check(res: requests.models.Response):
+def login_check(res: dict):
     if not res['status'] == 'ok':
         print('登入失敗, 請檢查 .env 中的帳號密碼是否填寫正確！')
         sleep(7)  # 錯誤訊息停留幾秒再結束程式
@@ -43,7 +43,7 @@ def login_check(res: requests.models.Response):
     print('登入成功\n')
 
 
-def set_user(res: requests.models.Response, user: dict):
+def set_user(res: dict, user: dict):
     # 登入時會拿到上次進入的課程對應的 game character 資料
     # 提取 gc_id 拿 personal_information 中的組別名稱
     self_gcid = res['data']['gc']['id']
