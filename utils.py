@@ -88,7 +88,7 @@ def print_team_members(gcids: list[int], nicknames: list[str]):
 def progress_bar(now, total, total_blocks=50, decimal_point=2, last_percent=1):
     if now == total or now / total >= last_percent:
         print(
-            f'\r[{"█" * total_blocks}] {100}%', end='')  # 輸出不換行的內容
+            f'\r[{"█" * total_blocks}] {100:0.{decimal_point}f}%', end='')  # 輸出不換行的內容
     else:
         plus_block = "█" * (now * total_blocks // total)
         minus_block = " " * (total_blocks - (now * total_blocks // total))
