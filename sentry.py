@@ -8,9 +8,9 @@ from utils import *
 alert_if_script_down = True
 
 
-def sentry(teammates: dict):
-    teammate_gcids = teammates['gcid']
-    teammate_nicknames = teammates['nickname']
+def sentry(members: dict):
+    teammate_gcids = members['gcid']
+    teammate_nicknames = members['nickname']
 
     cooldown = 3  # 每三分鐘檢查一次, 請善待 PaGamO 伺服器, 不要把他調太低
     last_seen_land = [0] * len(teammate_gcids)
@@ -59,5 +59,5 @@ def sentry(teammates: dict):
 if __name__ == '__main__':
     user = get_account()
     login(user)
-    teammates = get_teammate(user)
+    teammates = get_team_member(user)
     sentry(teammates)

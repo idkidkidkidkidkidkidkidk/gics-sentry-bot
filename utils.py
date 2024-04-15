@@ -53,12 +53,16 @@ def set_user(res: requests.models.Response, user: dict):
     self_gcid = res['data']['gc']['id']
 
     self_info = s.post(info_url).json()  # 不帶參數預設為提取自己的資料
+    self_nickname = self_info['data']['user']['nickname']
     self_group = self_info['data']['gamecharacter']['group_name']
 
     print(f'你的 id: {self_gcid}')
+    print(f'你的名稱: {self_nickname}')
     print(f'你的組別: {self_group}')
+    print()
 
     user['self_gcid'] = self_gcid
+    user['self_nickname'] = self_nickname
     user['self_group'] = self_group
 
 
@@ -74,37 +78,52 @@ def login(user: dict):
     set_user(login_resp, user)
 
 
-def get_teammate(user: dict):
+def print_team_members(gcids: list[int], nicknames: list[str]):
+    if len(gcids) == 3:
+        print('搜尋成功')
+        print('成員 id: {0}'.format(' '.join(str(gcid) for gcid in gcids)))
+        print('成員暱稱: {0}'.format(' '.join(str(nick) for nick in nicknames)))
+    else:
+        print('搜尋失敗')
+        exit(1)
+
+
+def search_group(user: dict):
     self_gcid = user['self_gcid']
     self_group = user['self_group']
 
-    # 找出隊友
-    print('正在搜尋隊友的 id (請耐心等候數秒)...')
-    team_id = (self_gcid - 1) // 3 + 1
-    teammate_gcids = list()
-    teammate_nicknames = list()  # 順便拿隊友們的暱稱
+    search_range = 3
+    gcids = list()
+    nicknames = list()  # 順便拿隊友們的暱稱
 
-    for teammate_id in range((team_id - 1) * 3, team_id * 3):  # [3n, 3(n+1))
-        sleep(2)  # 減緩請求頻率
+    for offset in range(-search_range, search_range + 1):  # [-3, 4)
+        sleep(0.7)  # 減緩請求頻率
 
-        check_gcid = teammate_id + 1
+        check_gcid = self_gcid + offset
         info_resp = s.post(info_url, data={'gc_id': check_gcid})
 
         try:
             check_data = info_resp.json()
             check_group = check_data['data']['gamecharacter']['group_name']
+
             if check_group == self_group:
-                teammate_gcids.append(check_gcid)
-                teammate_nicknames.append(check_data['data']['user']['nickname'])
+                gcids.append(check_gcid)
+                nicknames.append(check_data['data']['user']['nickname'])
+
+                if len(gcids) == 3:
+                    break
+
         except KeyError:
             pass
 
-    if len(teammate_gcids) == 3:
-        print('搜尋成功')
-        print('隊友 id: {0}'.format(' '.join(str(gcid) for gcid in teammate_gcids)))
-        print('隊友暱稱: {0}'.format(' '.join(str(nick) for nick in teammate_nicknames)))
-    else:
-        print('搜尋失敗')
-        exit(1)
+    return gcids, nicknames
+
+
+def get_team_member(user: dict):
+    # 找出隊友
+    print('正在搜尋成員的 id (請耐心等候數秒)...')
+
+    teammate_gcids, teammate_nicknames = search_group(user)
+    print_team_members(teammate_gcids, teammate_nicknames)
 
     return {'gcid': teammate_gcids, 'nickname': teammate_nicknames}
