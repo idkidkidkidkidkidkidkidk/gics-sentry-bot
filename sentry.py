@@ -52,7 +52,7 @@ def sentry(members: dict):
             print(datetime.now().strftime('%m/%d %H:%M'), end=' ')
             print(f'發生錯誤: {e}')
 
-            if int(get_key('.env', 'ALERT_IF_SCRIPT_DOWN')):
+            if alert_if_script_down:
                 play_music()
 
 
