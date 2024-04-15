@@ -76,12 +76,24 @@ def login(user: dict):
 
 def print_team_members(gcids: list[int], nicknames: list[str]):
     if len(gcids) == 3:
+        print('\n\n')
         print('搜尋成功')
         print('成員 id: {0}'.format(' '.join(str(gcid) for gcid in gcids)))
         print('成員暱稱: {0}'.format(' '.join(str(nick) for nick in nicknames)))
     else:
         print('搜尋失敗')
         exit(1)
+
+
+def progress_bar(now, total, total_blocks=50, decimal_point=2, last_percent=1):
+    if now == total or now / total >= last_percent:
+        print(
+            f'\r[{"█" * total_blocks}] {100}%', end='')  # 輸出不換行的內容
+    else:
+        plus_block = "█" * (now * total_blocks // total)
+        minus_block = " " * (total_blocks - (now * total_blocks // total))
+        percentage = round(now * 100 / total, decimal_point)
+        print(f'\r[{plus_block}{minus_block}] {percentage}%', end='')  # 輸出不換行的內容
 
 
 def search_group(user: dict):
@@ -106,8 +118,10 @@ def search_group(user: dict):
                 gcids.append(check_gcid)
                 nicknames.append(check_data['data']['user']['nickname'])
 
-                if len(gcids) == 3:
-                    break
+            progress_bar(len(gcids), 3)
+
+            if len(gcids) == 3:
+                break
 
         except KeyError:
             pass
