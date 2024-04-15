@@ -1,5 +1,8 @@
+import os
 from time import sleep
 
+# 關掉 pygame 歡迎訊息
+os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
 from pygame import mixer
 
 

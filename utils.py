@@ -1,4 +1,3 @@
-import os
 from base64 import b64decode, b64encode
 from time import sleep
 
@@ -6,9 +5,6 @@ import requests
 from Crypto.Cipher import PKCS1_v1_5 as Cipher_PKCS1_v1_5
 from Crypto.PublicKey import RSA
 from dotenv import get_key
-
-# 關掉 pygame 歡迎訊息
-os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
 
 info_url = 'https://www.pagamo.org/users/personal_information.json'
 s = requests.Session()
