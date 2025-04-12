@@ -6,7 +6,7 @@ from utils import *
 
 # 在 .env 中填入競賽用的帳號密碼
 
-def sentry(members: dict, silent_on_error: bool):
+def sentry(members: dict, music_path: str, silent_on_error: bool):
     teammate_gcids = members['gcid']
     teammate_nicknames = members['nickname']
 
@@ -38,7 +38,7 @@ def sentry(members: dict, silent_on_error: bool):
                     print('{}, 原本土地數: {}, 現在土地數: {}'
                           .format(teammate_nicknames[i], last_seen_land[i], current_land[i]))
 
-                    play_music()
+                    play_music(music_path)
 
             if not attack:
                 print('哨兵監視中, 目前土地數: {}'.format(' '.join(str(i) for i in current_land)))
@@ -51,7 +51,7 @@ def sentry(members: dict, silent_on_error: bool):
             print(f'發生錯誤: {e}')
 
             if not silent_on_error:
-                play_music()
+                play_music(music_path)
 
 
 if __name__ == '__main__':
@@ -74,4 +74,4 @@ if __name__ == '__main__':
     user = get_account()
     login(user)
     teammates = get_team_member(user)
-    sentry(teammates, silent_on_error)
+    sentry(teammates, music_path, silent_on_error)
