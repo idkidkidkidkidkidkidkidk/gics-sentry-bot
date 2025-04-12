@@ -7,12 +7,17 @@ from pygame import mixer
 
 
 def play_music():
-    # 播音樂
+    # 最多播 30 秒音樂
+    timer = 30
+    
     mixer.init()
     mixer.music.load('./alarm.mp3')
     mixer.music.play()
     while mixer.music.get_busy():
-        sleep(1)  # 等待音樂結束撥放
+        timer -= 1
+        sleep(1)  # 每次倒數一秒, 等待音樂結束撥放
+        if timer <= 0:
+            mixer.music.stop()
 
 
 def test_volume():
