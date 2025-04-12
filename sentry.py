@@ -1,14 +1,12 @@
+import argparse
 from datetime import datetime
 
 from alarm import play_music
 from utils import *
 
 # 在 .env 中填入競賽用的帳號密碼
-# alert_if_script_down: 程式異常(例如網路斷掉)時, 要不要播音樂警告
-alert_if_script_down = True
 
-
-def sentry(members: dict):
+def sentry(members: dict, silent_on_error: bool):
     teammate_gcids = members['gcid']
     teammate_nicknames = members['nickname']
 
@@ -52,12 +50,28 @@ def sentry(members: dict):
             print(datetime.now().strftime('%m/%d %H:%M'), end=' ')
             print(f'發生錯誤: {e}')
 
-            if alert_if_script_down:
+            if not silent_on_error:
                 play_music()
 
 
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser(prog='GiCS Sentry Bot')
+
+    # 警報音樂路徑
+    parser.add_argument('-m', '--music-path',
+                        default='./alarm.mp3',
+                        help='Path to the music used for alarm.')
+
+    # 程式異常(例如網路斷掉)時, 要不要播音樂警告
+    parser.add_argument('-s', '--silent-on-error',
+                        action='store_true',
+                        help='Toggle if the alarm will be played if the bot encounters an error.')
+
+    args = parser.parse_args()
+    music_path = args.music_path
+    silent_on_error = args.silent_on_error
+
     user = get_account()
     login(user)
     teammates = get_team_member(user)
-    sentry(teammates)
+    sentry(teammates, silent_on_error)
