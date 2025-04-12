@@ -15,10 +15,10 @@
 
 
 ## 安裝
+在 [Release 頁面](https://github.com/idkidkidkidkidkidkidkidk/gics-sentry-bot/releases/tag/v1.0) 下載 
+gics_sentry_bot_v1.0.zip，解壓縮後執行以下指令安裝需要的套件
 
 ```shell
-git clone https://github.com/idkidkidkidkidkidkidkidk/gics-sentry-bot.git
-cd gics-sentry-bot
 pip install -r requirements.txt
 ```
 
