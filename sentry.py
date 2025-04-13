@@ -11,7 +11,7 @@ def sentry(members: dict, music_path: str, silent_on_error: bool):
     teammate_nicknames = members['nickname']
 
     cooldown = 3  # 每三分鐘檢查一次, 請善待 PaGamO 伺服器, 不要把他調太低
-    last_seen_land = [0] * len(teammate_gcids)
+    last_seen_land = [100, 100, 0] #[0] * len(teammate_gcids)
 
     print()
     print(f'開始監視 (每 {cooldown} 分鐘檢查一次, 按 ctrl + c 可停止)')
@@ -38,10 +38,10 @@ def sentry(members: dict, music_path: str, silent_on_error: bool):
                     print('{}, 原本土地數: {}, 現在土地數: {}'
                           .format(teammate_nicknames[i], last_seen_land[i], current_land[i]))
 
-                    send_message(teammate_nicknames, last_seen_land, current_land)
-                    play_music(music_path)
-
-            if not attack:
+            if attack:
+                send_message(teammate_nicknames, last_seen_land, current_land)
+                play_music(music_path)
+            else:
                 print('哨兵監視中, 目前土地數: {}'.format(' '.join(str(i) for i in current_land)))
                 sleep(cooldown * 60)  # 請善待 PaGamO 伺服器, 不要把他調太低
 

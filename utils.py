@@ -141,13 +141,18 @@ def get_team_member(user: dict):
 
 # To be refactored into a class
 def build_message(teammate_nicknames: list[str], last_seen_land: list[int], current_land: list[int]):
-    message = '## ⚠️ 警告: 偵測到入侵!\n'\
-              '遭到攻擊的帳號:\n' \
+    message = '## ⚠️ 警告：偵測到入侵！\n'\
 
-    attacked_template = '{}, 原本土地數: {}, 現在土地數: {}\n'
+    attacked_template = '{}, 土地數 {} -> {} (<@{}>)\n'
+
+    teammate_discord_ids = get_key('.env', 'TEAMMATE_IDS').split(',')
+
     for i in range(len(last_seen_land)):
         if current_land[i] < last_seen_land[i]:
-            message += attacked_template.format(teammate_nicknames[i], last_seen_land[i], current_land[i])
+            message += attacked_template.format(teammate_nicknames[i],
+                                                last_seen_land[i],
+                                                current_land[i],
+                                                teammate_discord_ids[i])
     return message
 
 
