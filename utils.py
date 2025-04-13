@@ -137,3 +137,21 @@ def get_team_member(user: dict):
     print_team_members(teammate_gcids, teammate_nicknames)
 
     return {'gcid': teammate_gcids, 'nickname': teammate_nicknames}
+
+
+# To be refactored into a class
+def build_message(teammate_nicknames: list[str], last_seen_land: list[int], current_land: list[int]):
+    message = '## ⚠️ 警告: 偵測到入侵!\n'\
+              '遭到攻擊的帳號:\n' \
+
+    attacked_template = '{}, 原本土地數: {}, 現在土地數: {}\n'
+    for i in range(len(last_seen_land)):
+        if current_land[i] < last_seen_land[i]:
+            message += attacked_template.format(teammate_nicknames[i], last_seen_land[i], current_land[i])
+    return message
+
+
+def send_message(teammate_nicknames: list[str], last_seen_land: list[int], current_land: list[int]):
+    webhook_url = get_key('.env', 'WEBHOOK_URL')
+    payload = {'content': build_message(teammate_nicknames, last_seen_land, current_land)}
+    requests.post(webhook_url, payload)

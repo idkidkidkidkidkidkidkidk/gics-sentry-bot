@@ -30,7 +30,7 @@ def sentry(members: dict, music_path: str, silent_on_error: bool):
             print(datetime.now().strftime('%m/%d %H:%M'), end=' ')
 
             attack = False
-            for i in range(len(teammate_gcids)):
+            for i in range(len(teammate_nicknames)):
                 if current_land[i] < last_seen_land[i]:
                     attack = True
                     print('警告: 偵測到入侵!')
@@ -38,6 +38,7 @@ def sentry(members: dict, music_path: str, silent_on_error: bool):
                     print('{}, 原本土地數: {}, 現在土地數: {}'
                           .format(teammate_nicknames[i], last_seen_land[i], current_land[i]))
 
+                    send_message(teammate_nicknames, last_seen_land, current_land)
                     play_music(music_path)
 
             if not attack:
