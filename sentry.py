@@ -6,46 +6,45 @@ from utils import *
 
 # 在 .env 中填入競賽用的帳號密碼
 
-def sentry(members: dict, music_path: str, silent_on_error: bool):
-    teammate_gcids = members['gcid']
-    teammate_nicknames = members['nickname']
 
+def sentry(members: list[Member], music_path: str, silent_on_error: bool):
     cooldown = 3  # 每三分鐘檢查一次, 請善待 PaGamO 伺服器, 不要把他調太低
-    last_seen_land = [100, 100, 0] #[0] * len(teammate_gcids)
 
     print()
     print(f'開始監視 (每 {cooldown} 分鐘檢查一次, 按 ctrl + c 可停止)')
 
     while True:
         try:
+            attacked = False
             # 抓隊友各自的領土數
-            current_land = list()
-            for gcid in teammate_gcids:
+            for member in members:
                 sleep(1)
-                info_resp = s.post(info_url, data={'gc_id': gcid})
+                info_resp = s.post(info_url, data={'gc_id': member.gcid})
                 land_count = info_resp.json()['data']['gamecharacter']['hexagons_count']
-                current_land.append(land_count)
+                member.current_land = land_count
+                if member.current_land < member.last_seen_land:
+                    attacked = True
+                    member.under_attack = True
 
             # 記錄現在時間
             print(datetime.now().strftime('%m/%d %H:%M'), end=' ')
 
-            attack = False
-            for i in range(len(teammate_nicknames)):
-                if current_land[i] < last_seen_land[i]:
-                    attack = True
-                    print('警告: 偵測到入侵!')
-                    print('遭到攻擊的帳號:')
-                    print('{}, 原本土地數: {}, 現在土地數: {}'
-                          .format(teammate_nicknames[i], last_seen_land[i], current_land[i]))
-
-            if attack:
-                send_message(teammate_nicknames, last_seen_land, current_land)
+            if attacked:
+                print('警告: 偵測到入侵!')
+                print('遭到攻擊的帳號:')
+                for member in members:
+                    if member.under_attack:
+                        print('{}, 原本土地數: {}, 現在土地數: {}'
+                            .format(member.nickname, member.last_seen_land, member.current_land))
+                send_message(members)
                 play_music(music_path)
             else:
-                print('哨兵監視中, 目前土地數: {}'.format(' '.join(str(i) for i in current_land)))
+                print('哨兵監視中, 目前土地數: {}'.format(' '.join(str(m.current_land) for m in members)))
                 sleep(cooldown * 60)  # 請善待 PaGamO 伺服器, 不要把他調太低
 
-            last_seen_land = current_land.copy()
+            for member in members:
+                member.last_seen_land = member.current_land
+                member.under_attack = False
 
         except Exception as e:
             print(datetime.now().strftime('%m/%d %H:%M'), end=' ')

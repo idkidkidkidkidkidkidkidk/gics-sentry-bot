@@ -9,6 +9,14 @@ from dotenv import get_key
 info_url = 'https://www.pagamo.org/users/personal_information.json'
 s = requests.Session()
 
+class Member:
+    def __init__(self, nickname: str, gcid: str, discord_id: str | None = None):
+        self.nickname = nickname
+        self.gcid = gcid
+        self.discord_id = discord_id
+        self.last_seen_land = 100
+        self.current_land = 0
+        self.under_attack = False
 
 def encrypt_password(password: str):
     public_key = 'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA7PIWyhn3rvv4B9UWMTriKb0J1HsAkoC25YYDoGmf019IxAgDdQZtu6fVeQIbfexQNN5qX+2hyiKUMnL+Bcllvxk1aGQVggKtNr9XAGdQjVsisLROi/VHuQoYGUxcF0TxxEgEW98uXn63Ub+uAsxadV0Tr2y5d1pFVUIVBQeXiDIS1pY1kzE0oGMN4l4/3xow973kmN6Lo3sIB8vIioeXbYUY2okZm54BpLSqtxOWp/WQlimOkZ0nJwvNr5g94PCRrBvDMCt7QlwA6VUzqPLZ0RVrWL2+JgQV/ujWFZKvOcXtoftYwjogiFPDDhQ5GQxjW/ZdswNMs0k7RPx3jmyJJwIDAQAB'
@@ -74,12 +82,12 @@ def login(user: dict):
     set_user(login_resp, user)
 
 
-def print_team_members(gcids: list[int], nicknames: list[str]):
-    if len(gcids) == 3:
+def print_team_members(members: list[Member]):
+    if len(members) == 3:
         print('\n\n')
         print('搜尋成功')
-        print('成員 id: {0}'.format(' '.join(str(gcid) for gcid in gcids)))
-        print('成員暱稱: {0}'.format(' '.join(str(nick) for nick in nicknames)))
+        print('成員 id: {0}'.format(' '.join(str(m.gcid) for m in members)))
+        print('成員暱稱: {0}'.format(' '.join(str(m.nickname) for m in members)))
     else:
         print('搜尋失敗')
         exit(1)
@@ -129,34 +137,35 @@ def search_group(user: dict):
     return gcids, nicknames
 
 
-def get_team_member(user: dict):
+def get_team_member(user: dict) -> list[Member]:
     # 找出隊友
     print('正在搜尋成員的 id (請耐心等候數秒)...')
 
-    teammate_gcids, teammate_nicknames = search_group(user)
-    print_team_members(teammate_gcids, teammate_nicknames)
+    members = list()
+    gcids, nicknames = search_group(user)
+    discord_ids = get_key('.env', 'DISCORD_IDS').split(',')
 
-    return {'gcid': teammate_gcids, 'nickname': teammate_nicknames}
+    for i in range(len(gcids)):
+        members.append(Member(nicknames[i], gcids[i], discord_ids[i]))
+    print_team_members(members)
+
+    return members
 
 
-# To be refactored into a class
-def build_message(teammate_nicknames: list[str], last_seen_land: list[int], current_land: list[int]):
-    message = '## ⚠️ 警告：偵測到入侵！\n'\
-
+def build_message(members: list[Member]):
+    message = '## ⚠️ 警告：偵測到入侵！\n'
     attacked_template = '{}, 土地數 {} -> {} (<@{}>)\n'
 
-    teammate_discord_ids = get_key('.env', 'TEAMMATE_IDS').split(',')
-
-    for i in range(len(last_seen_land)):
-        if current_land[i] < last_seen_land[i]:
-            message += attacked_template.format(teammate_nicknames[i],
-                                                last_seen_land[i],
-                                                current_land[i],
-                                                teammate_discord_ids[i])
+    for member in members:
+        if member.under_attack:
+            message += attacked_template.format(member.nickname,
+                                                member.last_seen_land,
+                                                member.current_land,
+                                                member.discord_id)
     return message
 
 
-def send_message(teammate_nicknames: list[str], last_seen_land: list[int], current_land: list[int]):
+def send_message(members: list[Member]):
     webhook_url = get_key('.env', 'WEBHOOK_URL')
-    payload = {'content': build_message(teammate_nicknames, last_seen_land, current_land)}
+    payload = {'content': build_message(members)}
     requests.post(webhook_url, payload)
