@@ -9,12 +9,15 @@ from utils import *
 
 def sentry(members: list[Member], music_path: str, silent_on_error: bool):
     cooldown = 3  # 每三分鐘檢查一次, 請善待 PaGamO 伺服器, 不要把他調太低
+    last_reported_hour = None # 每小時就算沒有被入侵，也回報一次
 
     print()
     print(f'開始監視 (每 {cooldown} 分鐘檢查一次, 按 ctrl + c 可停止)')
 
     while True:
         try:
+            now = datetime.now()
+
             attacked = False
             # 抓隊友各自的領土數
             for member in members:
@@ -27,7 +30,7 @@ def sentry(members: list[Member], music_path: str, silent_on_error: bool):
                     member.under_attack = True
 
             # 記錄現在時間
-            print(datetime.now().strftime('%m/%d %H:%M'), end=' ')
+            print(now.strftime('%m/%d %H:%M'), end=' ')
 
             if attacked:
                 print('警告: 偵測到入侵!')
@@ -36,11 +39,16 @@ def sentry(members: list[Member], music_path: str, silent_on_error: bool):
                     if member.under_attack:
                         print('{}, 原本土地數: {}, 現在土地數: {}'
                             .format(member.nickname, member.last_seen_land, member.current_land))
-                send_message(members)
+                send_message(members, attacked=True)
                 play_music(music_path)
+                last_reported_hour = now.hour
             else:
                 print('哨兵監視中, 目前土地數: {}'.format(' '.join(str(m.current_land) for m in members)))
+                if now.hour != last_reported_hour:
+                    last_reported_hour = now.hour
+                    send_message(members, attacked=False)
                 sleep(cooldown * 60)  # 請善待 PaGamO 伺服器, 不要把他調太低
+
 
             for member in members:
                 member.last_seen_land = member.current_land

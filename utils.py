@@ -14,7 +14,7 @@ class Member:
         self.nickname = nickname
         self.gcid = gcid
         self.discord_id = discord_id
-        self.last_seen_land = 100
+        self.last_seen_land = 0
         self.current_land = 0
         self.under_attack = False
 
@@ -152,20 +152,30 @@ def get_team_member(user: dict) -> list[Member]:
     return members
 
 
-def build_message(members: list[Member]):
-    message = '## ⚠️ 警告：偵測到入侵！\n'
-    attacked_template = '{}, 土地數 {} -> {} (<@{}>)\n'
+def build_message(members: list[Member], attacked: bool):
+    message = ''
+    if attacked:
+        message += '## ⚠️ 警告：偵測到入侵！\n'
+        template = '{}, 土地數 {} -> {} (<@{}>)\n'
 
-    for member in members:
-        if member.under_attack:
-            message += attacked_template.format(member.nickname,
-                                                member.last_seen_land,
-                                                member.current_land,
-                                                member.discord_id)
+        for member in members:
+            if member.under_attack:
+                message += template.format(member.nickname,
+                                           member.last_seen_land,
+                                           member.current_land,
+                                           member.discord_id)
+    else:
+        message += '## 👮 哨兵監視中\n'
+        template = '{}, 土地數 {}\n'
+
+        for member in members:
+            message += template.format(member.nickname,
+                                       member.current_land,
+                                       member.discord_id)
     return message
 
 
-def send_message(members: list[Member]):
+def send_message(members: list[Member], attacked: bool):
     webhook_url = get_key('.env', 'WEBHOOK_URL')
-    payload = {'content': build_message(members)}
+    payload = {'content': build_message(members, attacked=attacked)}
     requests.post(webhook_url, payload)
