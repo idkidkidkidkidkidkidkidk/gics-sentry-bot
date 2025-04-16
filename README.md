@@ -7,15 +7,18 @@
 每三分鐘檢查隊伍每個人的土地數量，地數掉的時候播音樂、傳訊息通知，讓你的隊友可以安心睡覺 :sparkles:
 
 ![哨兵 bot 執行畫面](./img/screenshot.png)
-
+![哨兵 bot Discord 畫面](./img/discord_screenshot_1.png)
+![哨兵 bot Discord 警報，讓我們感謝第 105 隊的朋友開賽就打過來贊助這張截圖](./img/discord_screenshot_2.png)
 
 - [安裝](#安裝)
 - [使用](#使用)
     - [基本使用](#基本使用)
     - [進階使用](#進階使用)
     - [Discord 設定](#discord-設定)
-
 - [注意事項](#注意事項)
+- [Known Issues](#known-issues)
+- [Todo](#todo)
+- [Credits](#credits)
 
 ## 安裝
 請用 [Python 3](https://www.python.org/downloads/) 以上
@@ -82,7 +85,7 @@ Step 4. 設定 bot 能提及隊友們，在一個隊友都在的伺服器依序�
 Step 5. 把三個 ID 用逗號分隔，填到 .env 的 DISCORD_IDS 後面，不要加空白鍵
 
 
-完成 :tada:
+完成 :tada: 設定好後用 `python sentry.py --use-discord` 就能執行
 
 
 ## 注意事項
