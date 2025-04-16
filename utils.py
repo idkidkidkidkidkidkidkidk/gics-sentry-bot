@@ -9,23 +9,20 @@ from dotenv import get_key
 info_url = 'https://www.pagamo.org/users/personal_information.json'
 s = requests.Session()
 
+class Member:
+    def __init__(self, nickname: str, gcid: str, discord_id: str | None = None):
+        self.nickname = nickname
+        self.gcid = gcid
+        self.discord_id = discord_id
+        self.last_seen_land = 0
+        self.current_land = 0
+        self.under_attack = False
 
 def encrypt_password(password: str):
     public_key = 'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA7PIWyhn3rvv4B9UWMTriKb0J1HsAkoC25YYDoGmf019IxAgDdQZtu6fVeQIbfexQNN5qX+2hyiKUMnL+Bcllvxk1aGQVggKtNr9XAGdQjVsisLROi/VHuQoYGUxcF0TxxEgEW98uXn63Ub+uAsxadV0Tr2y5d1pFVUIVBQeXiDIS1pY1kzE0oGMN4l4/3xow973kmN6Lo3sIB8vIioeXbYUY2okZm54BpLSqtxOWp/WQlimOkZ0nJwvNr5g94PCRrBvDMCt7QlwA6VUzqPLZ0RVrWL2+JgQV/ujWFZKvOcXtoftYwjogiFPDDhQ5GQxjW/ZdswNMs0k7RPx3jmyJJwIDAQAB'
     rsa_key = RSA.importKey(b64decode(public_key))
     cipher_text = Cipher_PKCS1_v1_5.new(rsa_key).encrypt(password.encode())
     return b64encode(cipher_text)
-
-
-def get_account():
-    account = get_key('.env', 'ACCOUNT')
-    password = get_key('.env', 'PASSWORD')
-
-    if account == '你的帳號' or password == '你的密碼':
-        print('帳密未填寫, 請在 .env 中填入競賽使用的帳號密碼')
-        exit(1)
-
-    return {'account': account, 'password': encrypt_password(password)}
 
 
 def login_check(res: dict):
@@ -74,12 +71,12 @@ def login(user: dict):
     set_user(login_resp, user)
 
 
-def print_team_members(gcids: list[int], nicknames: list[str]):
-    if len(gcids) == 3:
+def print_team_members(members: list[Member]):
+    if len(members) == 3:
         print('\n\n')
         print('搜尋成功')
-        print('成員 id: {0}'.format(' '.join(str(gcid) for gcid in gcids)))
-        print('成員暱稱: {0}'.format(' '.join(str(nick) for nick in nicknames)))
+        print('成員 id: {0}'.format(' '.join(str(m.gcid) for m in members)))
+        print('成員暱稱: {0}'.format(' '.join(str(m.nickname) for m in members)))
     else:
         print('搜尋失敗')
         exit(1)
@@ -129,11 +126,57 @@ def search_group(user: dict):
     return gcids, nicknames
 
 
-def get_team_member(user: dict):
+def get_team_member(user: dict) -> list[Member]:
     # 找出隊友
     print('正在搜尋成員的 id (請耐心等候數秒)...')
 
-    teammate_gcids, teammate_nicknames = search_group(user)
-    print_team_members(teammate_gcids, teammate_nicknames)
+    members = list()
+    gcids, nicknames = search_group(user)
+    discord_ids = get_key('.env', 'DISCORD_IDS').split(',')
 
-    return {'gcid': teammate_gcids, 'nickname': teammate_nicknames}
+    for i in range(len(gcids)):
+        members.append(Member(nicknames[i], gcids[i], discord_ids[i]))
+    print_team_members(members)
+
+    return members
+
+
+def build_report(members: list[Member], attacked: bool):
+    message = ''
+    if attacked:
+        message += '## ⚠️ 警告：偵測到入侵！\n'
+        template = '{}, 土地數 {} -> {} (<@{}>)\n'
+
+        for member in members:
+            if member.under_attack:
+                message += template.format(member.nickname,
+                                           member.last_seen_land,
+                                           member.current_land,
+                                           member.discord_id)
+    else:
+        message += '## 👮 哨兵監視中\n'
+        template = '{}, 土地數 {}\n'
+
+        for member in members:
+            message += template.format(member.nickname,
+                                       member.current_land,
+                                       member.discord_id)
+    return message
+
+
+def send_report(members: list[Member], attacked: bool):
+    webhook_url = get_key('.env', 'WEBHOOK_URL')
+    payload = {'content': build_report(members, attacked=attacked)}
+
+    resp = requests.post(webhook_url, payload)
+    # Webhook 呼叫成功時 Discord 不會回傳資訊, status code 會是 204 No Content
+    if resp.status_code != 204:
+        print('Discord 訊息傳送失敗')
+
+
+def send_error(error_message: str | None = None):
+    webhook_url = get_key('.env', 'WEBHOOK_URL')
+    message = f'## ❌ 發生錯誤\n{error_message}'
+    payload = {'content': message}
+
+    requests.post(webhook_url, payload)
