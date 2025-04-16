@@ -7,7 +7,9 @@
 每三分鐘檢查隊伍每個人的土地數量，地數掉的時候播音樂、傳訊息通知，讓你的隊友可以安心睡覺 :sparkles:
 
 ![哨兵 bot 執行畫面](./img/screenshot.png)
+
 ![哨兵 bot Discord 畫面](./img/discord_screenshot_1.png)
+
 ![哨兵 bot Discord 警報，讓我們感謝第 105 隊的朋友開賽就打過來贊助這張截圖](./img/discord_screenshot_2.png)
 
 - [安裝](#安裝)
@@ -64,14 +66,19 @@ python sentry.py --no-hourly-report
 ### Discord 設定
 
 Step 1. 在你有權限的 Discord 伺服器選擇 伺服器設定 > 整合
+
 ![Discord 設定 1](./img/discord_setup_1.png)
+
 ![Discord 設定 2](./img/discord_setup_2.png)
 
 Step 2. 選擇 Webhook，然後點一下新 Webhook 按鈕
+
 ![Discord 設定 3](./img/discord_setup_3.png)
+
 ![Discord 設定 4](./img/discord_setup_4.png)
 
 Step 3. 可以自行設定 bot 要傳訊息到哪個頻道，設定好後按 Copy Webhook URL，貼到 .env WEBHOOK_URL 後面
+
 ![Discord 設定 5](./img/discord_setup_5.png)
 
 
@@ -80,6 +87,7 @@ Step 4. 設定 bot 能提及隊友們，在一個隊友都在的伺服器依序�
 *如果有打開開發者模式，也可以右鍵隊友 > 複製使用者 ID*
 
 ![Discord 設定 6](./img/discord_setup_6.png)
+
 ![Discord 設定 7](./img/discord_setup_7.png)
 
 Step 5. 把三個 ID 用逗號分隔，填到 .env 的 DISCORD_IDS 後面，不要加空白鍵
