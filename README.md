@@ -1,13 +1,21 @@
 # GiCS 初賽哨兵 bot
 
-## 2025 更新中，目前可使用 2024 版本，請見 Release 頁面
+## 2025 更新已發佈，請見 Release 頁面
 
 這是一個被資安女婕思長達五天的初賽催生出的小工具
 
-每三分鐘檢查隊伍每個人的土地數量，地數掉的時候播音樂通知，讓你的隊友可以安心睡覺 :sparkles:
+每三分鐘檢查隊伍每個人的土地數量，地數掉的時候播音樂、傳訊息通知，讓你的隊友可以安心睡覺 :sparkles:
 
-![哨兵 bot 執行畫面](./screenshot.png)
+![哨兵 bot 執行畫面](./img/screenshot.png)
 
+
+- [安裝](#安裝)
+- [使用](#使用)
+    - [基本使用](#基本使用)
+    - [進階使用](#進階使用)
+    - [Discord 設定](#discord-設定)
+
+- [注意事項](#注意事項)
 
 ## 安裝
 請用 [Python 3](https://www.python.org/downloads/) 以上
@@ -21,6 +29,7 @@ pip install -r requirements.txt
 
 
 ## 使用
+### 基本使用
 ```shell
 # 測試音量
 python alarm.py
@@ -30,14 +39,50 @@ python alarm.py
 python sentry.py
 ```
 
-也可指定額外設定
-```shell
-# 可以填入用其他 mp3 檔案替換掉 alarm.mp3
-python sentry.py --music_path /path/to/my_alarm.mp3
 
-# 關閉程式異常（例如網路斷線）時播放警報音樂的功能
-python sentry.py --silent_on_error
+### 進階使用
+```shell
+# 顯示所有選項
+python sentry.py --help
+
+# 更改警報會播放的 mp3 檔案
+python sentry.py --music-path /path/to/your/alarm.mp3
+
+# 設定程式異常時（例如網路斷線），不播放警報音樂
+python sentry.py --silent-on-error
+
+# 連接 Discord Webhook（需要額外設定）
+python sentry.py --use-discord
+
+# 關閉每小時透過 Discord Webhook 回報的功能
+python sentry.py --no-hourly-report
 ```
+
+### Discord 設定
+
+Step 1. 在你有權限的 Discord 伺服器選擇 伺服器設定 > 整合
+![Discord 設定 1](./img/discord_setup_1.png)
+![Discord 設定 2](./img/discord_setup_2.png)
+
+Step 2. 選擇 Webhook，然後點一下新 Webhook 按鈕
+![Discord 設定 3](./img/discord_setup_3.png)
+![Discord 設定 4](./img/discord_setup_4.png)
+
+Step 3. 可以自行設定 bot 要傳訊息到哪個頻道，設定好後按 Copy Webhook URL，貼到 .env WEBHOOK_URL 後面
+![Discord 設定 5](./img/discord_setup_5.png)
+
+
+Step 4. 設定 bot 能提及隊友們，在一個隊友都在的伺服器依序輸入 \\@隊友帳號 後送出訊息，複製 <@[數字]> 中間的那一串數字，這是隊友們的使用者 ID
+
+*如果有打開開發者模式，也可以右鍵隊友 > 複製使用者 ID*
+
+![Discord 設定 6](./img/discord_setup_6.png)
+![Discord 設定 7](./img/discord_setup_7.png)
+
+Step 5. 把三個 ID 用逗號分隔，填到 .env 的 DISCORD_IDS 後面，不要加空白鍵
+
+
+完成 :tada:
 
 
 ## 注意事項
@@ -50,13 +95,12 @@ python sentry.py --silent_on_error
 2. 警報音樂播放時不會同時偵測攻擊
 
 
-## Notes
-預計在初賽開始後一天內 release，出問題的話歡迎開 issue
-
-
 ## Todo
+- [ ] 大量重構
 - [x] 警報音樂改成只播一分鐘，避免影響偵測
-- [ ] 替換警報時的動作，無縫接軌 Discord bot 等等
+- [x] 替換警報時的動作，無縫接軌 Discord bot 等等
+
+若有問題或想許願功能，歡迎開 Issue
 
 
 ## Credits
@@ -67,3 +111,6 @@ Music provided by NoCopyrightSounds
 Free Download/Stream: http://ncs.io/nekozilla
 
 Watch: http://youtu.be/6FNHe3kf8_s
+
+
+Discord 截圖中的哨兵 bot 頭貼改自 [GiCS 競賽 logo](https://gics.tw/) 和 [Alert icons created by meaicon - Flaticon](https://www.flaticon.com/free-icons/alert)

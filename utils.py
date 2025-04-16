@@ -25,17 +25,6 @@ def encrypt_password(password: str):
     return b64encode(cipher_text)
 
 
-def get_account():
-    account = get_key('.env', 'ACCOUNT')
-    password = get_key('.env', 'PASSWORD')
-
-    if account == '你的帳號' or password == '你的密碼':
-        print('帳密未填寫, 請在 .env 中填入競賽使用的帳號密碼')
-        exit(1)
-
-    return {'account': account, 'password': encrypt_password(password)}
-
-
 def login_check(res: dict):
     if not res['status'] == 'ok':
         print('登入失敗, 請檢查 .env 中的帳號密碼是否填寫正確！')
@@ -152,7 +141,7 @@ def get_team_member(user: dict) -> list[Member]:
     return members
 
 
-def build_message(members: list[Member], attacked: bool):
+def build_report(members: list[Member], attacked: bool):
     message = ''
     if attacked:
         message += '## ⚠️ 警告：偵測到入侵！\n'
@@ -175,7 +164,19 @@ def build_message(members: list[Member], attacked: bool):
     return message
 
 
-def send_message(members: list[Member], attacked: bool):
+def send_report(members: list[Member], attacked: bool):
     webhook_url = get_key('.env', 'WEBHOOK_URL')
-    payload = {'content': build_message(members, attacked=attacked)}
+    payload = {'content': build_report(members, attacked=attacked)}
+
+    resp = requests.post(webhook_url, payload)
+    # Webhook 呼叫成功時 Discord 不會回傳資訊, status code 會是 204 No Content
+    if resp.status_code != 204:
+        print('Discord 訊息傳送失敗')
+
+
+def send_error(error_message: str | None = None):
+    webhook_url = get_key('.env', 'WEBHOOK_URL')
+    message = f'## ❌ 發生錯誤\n{error_message}'
+    payload = {'content': message}
+
     requests.post(webhook_url, payload)
