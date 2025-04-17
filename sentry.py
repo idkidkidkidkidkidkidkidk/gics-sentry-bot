@@ -7,6 +7,7 @@ from utils import *
 def sentry(members: list[Member], args):
     cooldown = 3  # 每三分鐘檢查一次, 請善待 PaGamO 伺服器, 不要把他調太低
     last_reported_hour = None # 每小時就算沒有被入侵，也傳一次訊息到 Discord
+    last_run_error = False
 
     print()
     print(f'開始監視 (每 {cooldown} 分鐘檢查一次, 按 ctrl + c 可停止)')
@@ -47,19 +48,26 @@ def sentry(members: list[Member], args):
                 sleep(cooldown * 60)  # 請善待 PaGamO 伺服器, 不要把他調太低
 
 
+            
             for member in members:
                 member.last_seen_land = member.current_land
                 member.under_attack = False
 
+            last_run_error = False # 這次執行成功, 重置前次錯誤 flag
         except Exception as e:
             print(datetime.now().strftime('%m/%d %H:%M'), end=' ')
             print(f'發生錯誤: {e}')
 
-            if not args.silent_on_error:
+            if not last_run_error:
+                print('等候重試中...')
+            elif not args.silent_on_error:
+                print('警報已發送')
                 play_music(args.music_path)
                 if args.use_discord:
                     send_error(error_message=str(e))
-                
+            
+            last_run_error = True
+            sleep(30) # 發生錯誤時, 等待三十秒後重試               
 
 
 if __name__ == '__main__':
