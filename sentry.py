@@ -67,7 +67,7 @@ def sentry(members: list[Member], args):
                     send_error(error_message=str(e))
             
             last_run_error = True
-            sleep(30) # 發生錯誤時, 等待三十秒後重試               
+            sleep(60) # 發生錯誤時, 等待一分鐘後重試               
 
 
 if __name__ == '__main__':
