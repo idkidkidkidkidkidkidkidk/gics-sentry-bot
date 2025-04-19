@@ -26,7 +26,7 @@
 請用 [Python 3](https://www.python.org/downloads/) 以上
 
 在 [Release 頁面](https://github.com/idkidkidkidkidkidkidkidk/gics-sentry-bot/releases/latest) 下載 
-gics_sentry_bot_v1.0.zip，解壓縮後執行指令，安裝需要的套件
+gics_sentry_bot_v1.1.1.zip，解壓縮後執行指令，安裝需要的套件
 
 ```shell
 pip install -r requirements.txt
